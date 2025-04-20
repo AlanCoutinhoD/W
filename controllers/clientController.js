@@ -1,5 +1,6 @@
 const Client = require('../models/clientModel');
 const transporter = require('../config/email');
+const { generateDiscountCard } = require('../utils/pdfGenerator');
 
 const clientController = {
     register: async (req, res) => {
@@ -8,22 +9,33 @@ const clientController = {
 
             await Client.create(fullName, phone, email);
 
-            // Send confirmation email
+            // Generate PDF
+            const pdfBuffer = await generateDiscountCard(fullName);
+
+            // Send confirmation email with PDF attachment
             await transporter.sendMail({
                 from: process.env.SMTP_USER,
                 to: email,
-                subject: 'Registro Exitoso',
+                subject: 'Registro Exitoso - Tu Tarjeta de Descuento',
                 html: `
                     <h1>¡Gracias por registrarte!</h1>
                     <p>Hola ${fullName},</p>
                     <p>Tu registro ha sido completado exitosamente.</p>
+                    <p>Adjunto encontrarás tu tarjeta de descuento del 15% para usar en nuestras sucursales.</p>
                     <p>Datos registrados:</p>
                     <ul>
                         <li>Nombre: ${fullName}</li>
                         <li>Teléfono: ${phone}</li>
                         <li>Email: ${email}</li>
                     </ul>
-                `
+                `,
+                attachments: [
+                    {
+                        filename: 'tarjeta_descuento.pdf',
+                        content: pdfBuffer,
+                        contentType: 'application/pdf'
+                    }
+                ]
             });
 
             res.status(201).json({
