@@ -3,14 +3,13 @@ const PDFDocument = require('pdfkit');
 function generateDiscountCard(clientName) {
     return new Promise((resolve, reject) => {
         try {
-            // Create PDF with business card size
             const doc = new PDFDocument({
                 size: [240, 320],
                 margins: {
-                    top: 10,
-                    bottom: 10,
-                    left: 10,
-                    right: 10
+                    top: 15,
+                    bottom: 15,
+                    left: 15,
+                    right: 15
                 }
             });
 
@@ -21,72 +20,62 @@ function generateDiscountCard(clientName) {
                 resolve(pdfData);
             });
 
-            // Add decorative border
-            doc.rect(5, 5, 230, 310)
-               .lineWidth(2)
-               .strokeColor('#2D8259');
-            doc.stroke();
+            // Color scheme
+            const mainBlue = '#1e4d8c';
+            const white = '#FFFFFF';
 
-            // Inner decorative border
-            doc.rect(10, 10, 220, 300)
-               .lineWidth(1)
-               .strokeColor('#2D8259');
-            doc.stroke();
+            // Background
+            doc.rect(0, 0, 240, 320)
+               .fill(mainBlue);
 
-            // Header section
-            doc.fontSize(16)
-               .fillColor('#2D8259')
-               .text('Café DeChiapas', 20, 30, {align: 'center'})
-               .fontSize(10)
-               .text('Restaurant Cabana', {align: 'center'});
-
-            // Year with stylish background
-            doc.rect(20, 70, 200, 30)
-               .fill('#2D8259');
-            doc.fontSize(16)
-               .fillColor('white')
-               .text('2025', 20, 75, {align: 'center'});
-
-            // Discount section with background
-            doc.rect(30, 120, 180, 80)
-               .fillColor('#f0f0f0')
-               .fill();
-            doc.fontSize(42)
-               .fillColor('#2D8259')
-               .text('15%', 30, 130, {align: 'center'});
-            doc.fontSize(18)
-               .text('DESCUENTO', {align: 'center'});
-            doc.fontSize(10)
-               .text('EN TODAS NUESTRAS SUCURSALES', {align: 'center'});
-
-            // Client name with decorative line
-            doc.moveTo(40, 220)
-               .lineTo(200, 220)
-               .strokeColor('#2D8259')
-               .stroke();
-            doc.fontSize(12)
-               .fillColor('#2D8259')
-               .text(clientName, 20, 230, {align: 'center'});
-
-            // Restrictions in a styled box
-            doc.rect(20, 260, 200, 45)
-               .fillColor('#f5f5f5')
-               .fill();
-            doc.fontSize(7)
-               .fillColor('#666666')
-               .text('• Descuento no válido con otras promociones\n' +
-                    '• No válido en días feriados\n' +
-                    '• Descuento válido por persona\n' +
-                    '• Válido en todas nuestras sucursales', 25, 265);
-
-            // Add decorative coffee bean icon (simple drawing)
+            // Tool icon at top
             doc.save()
-               .translate(210, 20)
+               .translate(20, 15)
                .scale(0.3)
-               .path('M 50 0 C 100 25 100 75 50 100 C 0 75 0 25 50 0')
-               .fillColor('#2D8259')
-               .fill()
+               .path('M 50 0 L 90 40 L 80 50 L 40 10 Z M 10 40 L 50 80 L 40 90 L 0 50 Z')
+               .fill(white)
                .restore();
+
+            // Header text - updated to match image exactly
+            doc.font('Helvetica-Bold')
+               .fontSize(20)
+               .fillColor(white)
+               .text('ACCESORIOS Y REPARACIÓNES', 45, 25, {align: 'center'});
+
+            // Year on left side
+            doc.fontSize(24)
+               .text('2', 20, 80)
+               .text('0', 20, 105)
+               .text('2', 20, 130)
+               .text('5', 20, 155);
+
+            // Discount section with white background
+            doc.rect(45, 80, 175, 80)
+               .fill(white);
+
+            doc.fontSize(48)
+               .fillColor(mainBlue)
+               .text('10%', 60, 90, {align: 'center'})
+               .fontSize(20)
+               .text('DESCUENTO', 60, 140, {align: 'center'});
+
+            // Service text
+            doc.fontSize(12)
+               .fillColor(white)
+               .text('EN TODAS NUESTRAS\nREPARACIONES', 45, 180, {
+                   align: 'center',
+                   lineGap: 2
+               });
+
+            // Client name
+            doc.fontSize(16)
+               .text(clientName, 45, 230, {align: 'center'});
+
+            // Restrictions
+            doc.fontSize(8)
+               .text('• Descuento no válido con otras promociones.', 20, 270)
+               .text('• No válido en días feriados.', 20, 285)
+               .text('• Descuento válido por persona.', 20, 300);
 
             doc.end();
         } catch (error) {
